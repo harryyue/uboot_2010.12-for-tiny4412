@@ -382,6 +382,13 @@
 #define UART2_RATIO	7
 #define UART1_RATIO	7
 #define UART0_RATIO	7
+#elif defined(CONFIG_CLK_BUS_DMC_100_200)
+#define UART5_RATIO	7
+#define UART4_RATIO	7
+#define UART3_RATIO	7
+#define UART2_RATIO	7
+#define UART1_RATIO	7
+#define UART0_RATIO	7
 #endif
 
 #define CLK_DIV_PERIL0_VAL	((UART5_RATIO << 20) \
@@ -401,6 +408,9 @@
 #define UART_UBRDIV_VAL		0x2B	/* (SCLK_UART/(115200*16) -1) */
 #define UART_UDIVSLOT_VAL	0xC		/*((((SCLK_UART*10/(115200*16) -10))%10)*16/10)*/
 #elif defined(CONFIG_CLK_BUS_DMC_200_400)
+#define UART_UBRDIV_VAL		0x35    /* (SCLK_UART/(115200*16) -1) */
+#define UART_UDIVSLOT_VAL	0x4		/*((((SCLK_UART*10/(115200*16) -10))%10)*16/10)*/
+#elif defined(CONFIG_CLK_BUS_DMC_100_200)
 #define UART_UBRDIV_VAL		0x35    /* (SCLK_UART/(115200*16) -1) */
 #define UART_UDIVSLOT_VAL	0x4		/*((((SCLK_UART*10/(115200*16) -10))%10)*16/10)*/
 #endif
