@@ -59,6 +59,10 @@ VENDOR=
 #########################################################################
 # Allow for silent builds
 ifeq (,$(findstring s,$(MAKEFLAGS)))
+#$(findstring FIND,IN)  
+#函数功能：搜索字串“IN”，查找“FIND”字串。 
+#返回值：如果在“IN”之中存在“FIND” ，则返回“FIND”，否则返回空。 
+#函数说明：字串“IN”之中可以包含空格、[Tab]。搜索需要是严格的文本匹配。
 XECHO = echo
 else
 XECHO = :
@@ -88,6 +92,14 @@ endif
 
 ifdef O
 ifeq ("$(origin O)", "command line")
+#$(origin   variable)
+#1.返回值为"undefine"时，这个变量没有被定义过；
+#2.返回值为“command line”时，这个变量是被命令行定义的；
+#3.返回值为“environment”时，这个变量是定义为环境变量；
+#4.返回值为“file”时，这个变量是定义在Makefile中；
+#5.返回值为“default”时，变量是默认定义的；
+#6.返回值为“override”时，被override指示符重新定义；
+#7.返回值为“automatic”时，是一个命令运行中自动化变量。
 BUILD_DIR := $(O)
 endif
 endif
@@ -101,8 +113,11 @@ $(shell [ -d ${BUILD_DIR} ] || mkdir -p ${BUILD_DIR})
 # Verify if it was successful.
 BUILD_DIR := $(shell cd $(BUILD_DIR) && /bin/pwd)
 $(if $(BUILD_DIR),,$(error output directory "$(saved-output)" does not exist))
+#$(if CONDITION,THEN-PART[,ELSE-PART]) 
+#如果$(BUILD_DIR)的展开为空，则执行表达式$(error output directory "$(saved-output)" does not exist)
 endif # ifneq ($(BUILD_DIR),)
 
+#CURDIR是make的内嵌变量，自动设置为当前目录
 OBJTREE		:= $(if $(BUILD_DIR),$(BUILD_DIR),$(CURDIR))
 SRCTREE		:= $(CURDIR)
 TOPDIR		:= $(SRCTREE)
