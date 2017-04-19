@@ -239,33 +239,45 @@ void dram_init_banksize(void)
 	__attribute__((weak, alias("__dram_init_banksize")));
 
 init_fnc_t *init_sequence[] = {
-#if defined(CONFIG_ARCH_CPU_INIT)
+#if defined(CONFIG_ARCH_CPU_INIT) //tiny4412 don't defined this macro
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 #endif
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
+#if defined(CONFIG_BOARD_EARLY_INIT_F) //tiny4412 don't defined this macro
 	board_early_init_f,
 #endif
+
 	timer_init,		/* initialize timer */
-#ifdef CONFIG_FSL_ESDHC
+
+#ifdef CONFIG_FSL_ESDHC //tiny4412 don't defined this macro
 	get_clocks,
 #endif
+
 	env_init,		/* initialize environment */
+
+//tiny4412 don't defined this macro
 #if defined(CONFIG_S5P6450) && !defined(CONFIG_S5P6460_IP_TEST)
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 #endif
+
 	console_init_f,		/* stage 1 init of console */
 	display_banner,		/* say that we are here */
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
 #endif
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 	checkboard,		/* display board info */
 #endif
+	
+//tiny4412 don't defined this macro
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 	init_func_i2c,
 #endif
+
 	dram_init,		/* configure available RAM banks */
+
+//tiny4412 don't defined this macro
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
 	arm_pci_init,
 #endif
@@ -280,7 +292,7 @@ void board_init_f(ulong bootflag)
 	ulong addr, addr_sp;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) ((CONFIG_SYS_INIT_SP_ADDR) & ~0x07);
+	gd = (gd_t *) ((CONFIG_SYS_INIT_SP_ADDR) & ~0x07); //CONFIG_SYS_INIT_SP_ADDR = 0x43d0 0000
 
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");

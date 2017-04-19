@@ -114,8 +114,8 @@ reset:
 	 * set the cpu to SVC32 mode
 	 */
 	mrs	r0, cpsr
-	bic	r0, r0, #0x1f
-	orr	r0, r0, #0xd3
+	bic	r0, r0, #0x1f 
+	orr	r0, r0, #0xd3 	/*0xd3 <=> 0x110 10011 disable IRQ and FRQ ,and set to SVC mode*/
 	msr	cpsr,r0
 
 #if (CONFIG_OMAP34XX)

@@ -26,6 +26,10 @@ if [ \( $# -eq 2 \) -a \( "$1" = "-A" \) ] ; then
 		exit 1
 	}
 
+#set => let the ${line} as position arguments,$1,$2,$3,... 
+#ex:
+#tiny4412   arm   armv7   tiny4412   samsung   exynos
+#   $1       $2     $3       $4         $5       $6
 	set ${line}
 	# add default board name if needed
 	[ $# = 3 ] && set ${line} ${1}

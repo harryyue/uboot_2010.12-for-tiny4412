@@ -34,7 +34,7 @@ system_clock_init:
 @ CMU_CPU MUX / DIV
 	ldr	r1, =0x0
 	ldr	r2, =CLK_SRC_CPU_OFFSET
-	str	r1, [r0, r2]
+	str	r1, [r0, r2]  @0x1003_0000 + 0x1_4200 = 0x1004_4200
 
 	/* wait ?us */
 	mov	r1, #0x10000
@@ -42,10 +42,10 @@ system_clock_init:
 	bne	1b
 
 	ldr	r1, =CLK_DIV_DMC0_VAL
-	ldr	r2, =CLK_DIV_DMC0_OFFSET
+	ldr	r2, =CLK_DIV_DMC0_OFFSET  @0x1_0500
 	str	r1, [r0, r2]
 	ldr	r1, =CLK_DIV_DMC1_VAL
-	ldr	r2, =CLK_DIV_DMC1_OFFSET
+	ldr	r2, =CLK_DIV_DMC1_OFFSET  @0x1_0504
 	str	r1, [r0, r2]
 
 @ CMU_TOP MUX / DIV

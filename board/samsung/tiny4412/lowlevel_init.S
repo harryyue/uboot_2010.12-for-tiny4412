@@ -100,8 +100,12 @@ lowlevel_init:
 	cmp	r1, r2			/* compare r0, r1 */
 	beq	after_copy		/* r0 == r1 then skip sdram init and u-boot.bin loading */
 
+/*
+ *if not defined macro CONFIG_SMDKC220 and the package information is not #2,it
+ will not init the uart.(in tiny4412,this code isn't running.)
+ */
 #ifndef CONFIG_SMDKC220
-	ldr	r0, =CHIP_ID_BASE
+	ldr	r0, =CHIP_ID_BASE  @CHIP_ID_BASE=0x10000000
 	ldr	r1, [r0]
 	lsr	r1, r1, #8
 	and	r1, r1, #3
