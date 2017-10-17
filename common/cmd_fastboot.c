@@ -74,6 +74,7 @@
 #include <command.h>
 #include <asm/arch/movi_partition.h>
 #include <fastboot.h>
+#include <linux/ctype.h> 
 #if defined(CFG_FASTBOOT_SDMMCBSP)
 #include <mmc.h>
 #endif
@@ -142,6 +143,7 @@ static unsigned int download_size;
 static unsigned int download_bytes;
 //static unsigned int download_bytes_unpadded;
 static unsigned int download_error;
+static char dev_num[2];
 
 /* To support the Android-style naming of flash */
 #define MAX_PTN 16
@@ -492,7 +494,6 @@ static int write_to_ptn_sdmmc(struct fastboot_ptentry *ptn, unsigned int addr, u
 	int ret = 1;
 	char cmd[32], device[32], part[32], part2[32];
 	char start[32], length[32], buffer[32], run_cmd[32];
-	char dev_num[2];
 	char *argv[6]  = { NULL, NULL, NULL, NULL, NULL, NULL, };
 	int argc = 0;
 	char *nul_buf;
@@ -582,14 +583,12 @@ static int write_to_ptn_sdmmc(struct fastboot_ptentry *ptn, unsigned int addr, u
 		argv[2] = part;
 		argv[3] = dev_num;
 		argv[4] = buffer;
-		sprintf(dev_num, "%d", DEV_NUM);
 
 		argc = 5;
 
 		/* use the partition name that can be understood by a command, movi */
 		if (!strcmp(ptn->name, "bootloader"))
 		{
-			if (INF_REG3_REG == 7){
 				argv[2] = part2;
 				argv[3] = part;
 				argv[4] = dev_num;
@@ -597,60 +596,41 @@ static int write_to_ptn_sdmmc(struct fastboot_ptentry *ptn, unsigned int addr, u
 				argc = 6;
 				strncpy(part2, "zero", 7);
 				strncpy(part, "u-boot", 7);
-				sprintf(run_cmd,"emmc open 0");
+				sprintf(run_cmd,"emmc open %s", dev_num);
 				run_command(run_cmd, 0);
-			} 
-			else
-				strncpy(part, "u-boot", 7);
-
 		}
 		else if (!strcmp(ptn->name, "fwbl1"))
 		{
-			if (INF_REG3_REG == 7){
 				argv[2] = part2;
 				argv[3] = ptn->name;
 				argv[4] = dev_num;
 				argv[5] = buffer;
 				argc = 6;
 				strncpy(part2, "zero", 7);
-				sprintf(run_cmd,"emmc open 0");
+				sprintf(run_cmd,"emmc open %s", dev_num);
 				run_command(run_cmd, 0);
-			} 
-			else
-				argv[2] = ptn->name;
-
 		}
 		else if (!strcmp(ptn->name, "bl2"))
 		{
-			if (INF_REG3_REG == 7){
 				argv[2] = part2;
 				argv[3] = ptn->name;
 				argv[4] = dev_num;
 				argv[5] = buffer;
 				argc = 6;
 				strncpy(part2, "zero", 7);
-				sprintf(run_cmd,"emmc open 0");
+				sprintf(run_cmd,"emmc open %s", dev_num);
 				run_command(run_cmd, 0);
-			} 
-			else
-				argv[2] = ptn->name;
-
 		}
 		else if (!strcmp(ptn->name, "tzsw"))
 		{
-			if (INF_REG3_REG == 7){
 				argv[2] = part2;
 				argv[3] = ptn->name;
 				argv[4] = dev_num;
 				argv[5] = buffer;
 				argc = 6;
 				strncpy(part2, "zero", 7);
-				sprintf(run_cmd,"emmc open 0");
+				sprintf(run_cmd,"emmc open %s", dev_num);
 				run_command(run_cmd, 0);
-			} 
-			else
-				argv[2] = ptn->name;
-
 		}
 		else if (!strcmp(ptn->name, "ramdisk"))
 		{
@@ -669,11 +649,8 @@ static int write_to_ptn_sdmmc(struct fastboot_ptentry *ptn, unsigned int addr, u
 
 		ret = do_movi(NULL, 0, argc, argv);
 
-		if (INF_REG3_REG == 7 && (!strcmp(ptn->name, "fwbl1") || !strcmp(ptn->name, "bootloader") ||
-					 !strcmp(ptn->name, "bl2") || !strcmp(ptn->name, "tzsw"))){
-			sprintf(run_cmd,"emmc close 0");
-			run_command(run_cmd, 0);
-		}
+		sprintf(run_cmd,"emmc close %s", dev_num);
+		run_command(run_cmd, 0);
 
 		/* the return value of do_movi is different from usual commands. Hence the followings. */
 		ret = 1 - ret;
@@ -1162,6 +1139,7 @@ static int rx_handler (const unsigned char *buffer, unsigned int buffer_size)
 			else if ((download_bytes > ptn->length) && (ptn->length != 0) &&
 				   !(ptn->flags & FASTBOOT_PTENTRY_FLAGS_WRITE_ENV))
 			{
+				printf("download_bytes = 0x%08x, ptn->length = 0x%08x\n" , download_bytes, ptn->length);
 				sprintf(response, "FAILimage too large for partition");
 				/* TODO : Improve check for yaffs write */
 			}
@@ -1502,41 +1480,39 @@ static int set_partition_table()
 #endif
 
 #if defined(CFG_FASTBOOT_SDMMCBSP)
+/* TODO:Simple the  partition table */
 static int set_partition_table_sdmmc()
 {
 	unsigned long long start, count;
 	unsigned char pid;
-	char dev_num[2];
-
-	sprintf(dev_num, "%d", DEV_NUM);
 
 	pcount = 0;
 
 	/* FW BL1 for fused chip */
 	strcpy(ptable[pcount].name, "fwbl1");
 	ptable[pcount].start = 0;
-	ptable[pcount].length = 0;
+	ptable[pcount].length = 16 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
 	/* BL2 */
 	strcpy(ptable[pcount].name, "bl2");
-	ptable[pcount].start = 0;
-	ptable[pcount].length = 0;
+	ptable[pcount].start = 16 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
+	ptable[pcount].length = 32 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
 	/* Bootloader */
 	strcpy(ptable[pcount].name, "bootloader");
-	ptable[pcount].start = 0;
-	ptable[pcount].length = 0;
+	ptable[pcount].start = 48 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
+	ptable[pcount].length = 656 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
 	/* TrustZone S/W */
 	strcpy(ptable[pcount].name, "tzsw");
-	ptable[pcount].start = 0;
-	ptable[pcount].length = 0;
+	ptable[pcount].start = 704 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
+	ptable[pcount].length = 184 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
@@ -1554,6 +1530,7 @@ static int set_partition_table_sdmmc()
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
+#if 0
 	/* System */
 	get_mmc_part_info(dev_num, 2, &start, &count, &pid);
 	if (pid != 0x83)
@@ -1593,6 +1570,7 @@ static int set_partition_table_sdmmc()
 	ptable[pcount].length = count * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MMC_CMD;
 	pcount++;
+#endif
 
 #if 1 // Debug
 	fastboot_flash_dump_ptn();
@@ -1621,6 +1599,15 @@ int do_fastboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	struct fastboot_ptentry *ptn;
 	unsigned int addr, size;
 	gflag_reboot = 0;
+
+	if (2 != argc || !isxdigit(* argv[1])) {
+		printf("\n   Usage:fastboot <mmc_dev_num>\n");
+		printf("[dev_num]-the device which flashed this images.\n\n");
+		return -2;
+	}
+	strcpy(dev_num, argv[1]);
+	printf("The device number is %x\n", *dev_num - 30);
+
 /* checking boot mode before to set partition table	*/
 	switch(OmPin) {
 		case BOOT_ONENAND:
@@ -1640,47 +1627,7 @@ int do_fastboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				return 1;
 			}
 			break;
-		}
-	
-#if  0
-	if (set_partition_table())
-		return 1;
-#endif
-
-	if ((argc > 1) && (0 == strcmp(argv[1], "flash"))){
-		ptn = fastboot_flash_find_ptn(argv[2]);
-		if(ptn == NULL) {
-			printf("undefined image name !\n");
-			return -1;
-		}
-		size = 0;
-		if(ptn->name[0] == 'r')
-			size = PART_SIZE_ROOTFS;
-		addr = simple_strtoul(argv[3], NULL, 16);
-		write_to_ptn_sdmmc(ptn, addr, size);
-		return 1;
-	}
-
-	/* Time out */
-	if (2 == argc)
-	{
-		long try_seconds;
-		char *try_seconds_end;
-		/* Check for timeout */
-		try_seconds = simple_strtol(argv[1], &try_seconds_end, 10);
-		if ((try_seconds_end != argv[1]) && (try_seconds >= 0))
-		{
-			check_timeout = 1;
-			timeout_seconds = try_seconds;
-			printf("Fastboot inactivity timeout %ld seconds\n", timeout_seconds);
-		}
-	}
-
-	if (1 == check_timeout)
-	{
-		timeout_ticks = (uint64_t) (timeout_seconds * get_tbclk());
-	}
-
+		}	
 
 	do
 	{
@@ -1766,8 +1713,9 @@ int do_fastboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-	fastboot,	4,	1,	do_fastboot,
-	"fastboot- use USB Fastboot protocol\n",
+	fastboot,	2,	1,	do_fastboot,
+	"fastboot- use USB Fastboot protocol\n"
+	"Usage: fastboot [device_number]\n",
 	"[inactive timeout]\n"
 	"    - Run as a fastboot usb device.\n"
 	"    - The optional inactive timeout is the decimal seconds before\n"
@@ -1976,6 +1924,7 @@ void fastboot_flash_add_ptn(fastboot_ptentry *ptn)
 void fastboot_flash_dump_ptn(void)
 {
 	unsigned int n;
+	unsigned long long length;
 
 	printf("[Partition table on ");
 
@@ -1998,16 +1947,16 @@ void fastboot_flash_dump_ptn(void)
 	{
 		fastboot_ptentry *ptn = ptable + n;
 #if 0	/* old format - decimal */
-		printf("ptn %d name='%s' start=%d len=%d\n",
+		printf("ptn %d name='%s' start=%Ld len=%Ld\n",
 				n, ptn->name, ptn->start, ptn->length);
 #else
 		printf("ptn %d name='%s' ", n, ptn->name);
 		if (n == 0 || ptn->start)
-			printf("start=0x%X ", ptn->start);
+			printf("start=0x%LX ", ptn->start);
 		else
 			printf("start=N/A ");
 		if (ptn->length)
-			printf("len=0x%X(~%dKB) ", ptn->length, ptn->length>>10);
+			printf("len=0x%LX(%LdKB)", ptn->length, ptn->length>>10);
 		else
 			printf("len=N/A ");
 

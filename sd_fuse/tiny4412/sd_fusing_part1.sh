@@ -44,7 +44,7 @@ if [ ! -f ${E4412_BOOTLOAD} ]; then
 	exit -1
 else
 	echo "send to uboot binary to client."
-	sz ${E4412_BOOTLOAD}
+#	sz ${E4412_BOOTLOAD}
 fi
 
 ###################################

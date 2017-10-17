@@ -125,6 +125,7 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 
 /* Power Management is enabled */
 #define CONFIG_PM
@@ -306,7 +307,7 @@
 #define CONFIG_SYS_NO_FLASH		1
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
-#define CONFIG_IDENT_STRING		" for TINY4412"
+#define CONFIG_IDENT_STRING		" for Harry's TINY4412"
 
 #define CONFIG_ENABLE_MMU
 
@@ -334,6 +335,7 @@
 #define CFG_PARTITION_START			(0x4000000)
 
 /* Just one BSP type should be defined. */
+/* Note:In Tiny4412,we choose CONFIG_CMD_MOVINAND */
 #if defined(CONFIG_CMD_ONENAND) | defined(CONFIG_CMD_NAND) | defined(CONFIG_CMD_MOVINAND)
 #define CONFIG_FASTBOOT
 #endif
