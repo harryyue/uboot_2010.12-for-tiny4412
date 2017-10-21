@@ -66,7 +66,7 @@
 /* APLL : 800MHz */
 //#define CONFIG_CLK_ARM_800_APLL_800
 /* APLL : 1GHz */
-//#define CONFIG_CLK_ARM_1000_APLL_1000
+#define CONFIG_CLK_ARM_1000_APLL_1000
 /* APLL : 1.1GHz */
 //#define CONFIG_CLK_ARM_1200_APLL_1100
 /* APLL : 1.2GHz */
@@ -74,16 +74,16 @@
 /* APLL : 1.3GHz */
 //#define CONFIG_CLK_ARM_1200_APLL_1300
 /* APLL : 1.4GHz */
-#define CONFIG_CLK_ARM_1200_APLL_1400
+//#define CONFIG_CLK_ARM_1200_APLL_1400
 /* APLL : 1.5GHz */
 //#define CONFIG_CLK_ARM_1500_APLL_1500
 
 /* bus clock: 100Mhz, DMC clock 200Mhz */
-//#define CONFIG_CLK_BUS_DMC_100_200
+#define CONFIG_CLK_BUS_DMC_100_200
 /* bus clock: 165Mhz, DMC clock 330Mhz */
 //#define CONFIG_CLK_BUS_DMC_165_330
 /* bus clock: 200Mhz, DMC clock 400Mhz */
-#define CONFIG_CLK_BUS_DMC_200_400
+//#define CONFIG_CLK_BUS_DMC_200_400
 
 /* IV_SIZE: 128 byte, 2 port(1 Gbyte), open page, trrd: 4 */
 #define CONFIG_EVT0_PERFORMANCE
@@ -125,6 +125,7 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 
 /* Power Management is enabled */
 #define CONFIG_PM
@@ -220,11 +221,11 @@
 
 #define CONFIG_ETHADDR		00:40:5c:26:0a:5b
 #define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_IPADDR		192.168.0.20
-#define CONFIG_SERVERIP		192.168.0.10
-#define CONFIG_GATEWAYIP	192.168.0.1
+#define CONFIG_IPADDR		192.168.1.20
+#define CONFIG_SERVERIP		192.168.1.50
+#define CONFIG_GATEWAYIP	192.168.1.1
 
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	5
 /* Default boot commands for Android booting. */
 #define CONFIG_BOOTCOMMAND	"movi read kernel 0 40008000;movi read rootfs 0 41000000 100000;bootm 40008000 41000000"
 #define CONFIG_BOOTARGS	""
@@ -252,7 +253,7 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"TINY4412 # "
+#define CONFIG_SYS_PROMPT		"TINY4412@FriendlyARM # "
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -306,7 +307,7 @@
 #define CONFIG_SYS_NO_FLASH		1
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
-#define CONFIG_IDENT_STRING		" for TINY4412"
+#define CONFIG_IDENT_STRING		" for Harry's TINY4412"
 
 #define CONFIG_ENABLE_MMU
 
@@ -333,7 +334,14 @@
 #define CFG_FASTBOOT_SDMMC_BLOCKSIZE            (512)   // Block size of sdmmc
 #define CFG_PARTITION_START			(0x4000000)
 
+/* Strorage Partition table*/
+#define CFG_BOOTLOADER_SIZE  (444 * 2 * CFG_FASTBOOT_SDMMC_BLOCKSIZE)  /* 444k */
+#define CFG_KERNEL_SIZE  (1024 * 2 * CFG_FASTBOOT_SDMMC_BLOCKSIZE)
+#define CFG_ROOTFS_SIZE  (1024 * 2 * CFG_FASTBOOT_SDMMC_BLOCKSIZE)
+
+
 /* Just one BSP type should be defined. */
+/* Note:In Tiny4412,we choose CONFIG_CMD_MOVINAND */
 #if defined(CONFIG_CMD_ONENAND) | defined(CONFIG_CMD_NAND) | defined(CONFIG_CMD_MOVINAND)
 #define CONFIG_FASTBOOT
 #endif

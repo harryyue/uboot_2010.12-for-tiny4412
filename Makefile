@@ -171,9 +171,9 @@ include $(obj)include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
 
 # set default to nothing for native builds
-ifeq ($(HOSTARCH),$(ARCH))
-CROSS_COMPILE ?=
-endif
+#ifeq ($(HOSTARCH),$(ARCH))
+CROSS_COMPILE ?= arm-linux-
+#endif
 
 # load other configuration
 include $(TOPDIR)/config.mk

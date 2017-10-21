@@ -149,6 +149,7 @@ int do_movi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		printf("completed\n");
 		return 1;
 	}
+#if 0
 	/* u-boot r/w */
 	if (attribute == 0x2) {
 #if !defined(CONFIG_TRUSTZONE)
@@ -166,6 +167,24 @@ int do_movi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 #endif
 		
+		for (i=0, image = raw_area_control.image; i<15; i++) {
+			if (image[i].attribute == attribute)
+				break;
+		}
+		start_blk = image[i].start_blk;
+		blkcnt = image[i].used_blk;
+		printf("%s bootloader..device %d Start %ld, Count %ld ", rw ? "writing":"reading",
+			dev_num, start_blk, blkcnt);
+		sprintf(run_cmd,"mmc %s %d 0x%lx 0x%lx 0x%lx",
+			rw ? "write":"read", dev_num,
+			addr, start_blk, blkcnt);
+		run_command(run_cmd, dev_num);
+		printf("completed\n");
+		return 1;
+	}
+#endif
+	/* uboot r/w */
+	if (attribute == 0x2) {
 		for (i=0, image = raw_area_control.image; i<15; i++) {
 			if (image[i].attribute == attribute)
 				break;

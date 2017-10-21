@@ -50,7 +50,7 @@ int init_raw_area_table(block_dev_desc_t * dev_desc, int location)
 	image[1].attribute = 0x1;
 	strcpy(image[1].description, "u-boot parted");
 	dbg("iram block: %d\n", image[1].start_blk);
-
+#if 0
 	/* image 2 should be u-boot */
 	image[2].start_blk = image[1].start_blk + MOVI_BL1_BLKCNT;
 	image[2].used_blk = MOVI_UBOOT_BLKCNT;
@@ -58,6 +58,14 @@ int init_raw_area_table(block_dev_desc_t * dev_desc, int location)
 	image[2].attribute = 0x2;
 	strcpy(image[2].description, "u-boot");
 	dbg("u-boot: %d\n", image[2].start_blk);
+#endif
+	/* image 2 should be u-boot */
+	image[2].start_blk = location;
+	image[2].used_blk = CFG_BOOTLOADER_SIZE/MOVI_BLKSIZE;
+	image[2].size = CFG_BOOTLOADER_SIZE;
+	image[2].attribute = 0x2;
+	strcpy(image[2].description, "uboot");
+	dbg("uboot: %d\n", image[2].start_blk);
 
 	/* image 3 should be TrustZone S/W */
 	image[3].start_blk = image[2].start_blk + MOVI_UBOOT_BLKCNT;
