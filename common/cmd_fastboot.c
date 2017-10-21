@@ -599,6 +599,17 @@ static int write_to_ptn_sdmmc(struct fastboot_ptentry *ptn, unsigned int addr, u
 				sprintf(run_cmd,"emmc open %s", dev_num);
 				run_command(run_cmd, 0);
 		}
+		else if (!strcmp(ptn->name, "uboot"))
+		{
+				argv[2] = part2;
+				argv[3] = ptn->name;
+				argv[4] = dev_num;
+				argv[5] = buffer;
+				argc = 6;
+				strncpy(part2, "zero", 7);
+				sprintf(run_cmd,"emmc open %s", dev_num);
+				run_command(run_cmd, 0);
+		}
 		else if (!strcmp(ptn->name, "fwbl1"))
 		{
 				argv[2] = part2;
@@ -1488,6 +1499,7 @@ static int set_partition_table_sdmmc()
 
 	pcount = 0;
 
+#if 0
 	/* FW BL1 for fused chip */
 	strcpy(ptable[pcount].name, "fwbl1");
 	ptable[pcount].start = 0;
@@ -1515,14 +1527,30 @@ static int set_partition_table_sdmmc()
 	ptable[pcount].length = 184 * CFG_FASTBOOT_SDMMC_BLOCKSIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
+#endif
+
+	/* uboot */
+	strcpy(ptable[pcount].name, "uboot");
+	ptable[pcount].start = 0;
+	ptable[pcount].length = CFG_BOOTLOADER_SIZE;
+	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
+	pcount++;
 
 	/* Kernel */
 	strcpy(ptable[pcount].name, "kernel");
 	ptable[pcount].start = 0;
-	ptable[pcount].length = 0;
+	ptable[pcount].length = CFG_KERNEL_SIZE;
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
+	/* Rootfs */
+	strcpy(ptable[pcount].name, "rootfs");
+	ptable[pcount].start = 0;
+	ptable[pcount].length = CFG_ROOTFS_SIZE;
+	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
+	pcount++;
+
+#if 0
 	/* Ramdisk */
 	strcpy(ptable[pcount].name, "ramdisk");
 	ptable[pcount].start = 0;
@@ -1530,7 +1558,6 @@ static int set_partition_table_sdmmc()
 	ptable[pcount].flags = FASTBOOT_PTENTRY_FLAGS_USE_MOVI_CMD;
 	pcount++;
 
-#if 0
 	/* System */
 	get_mmc_part_info(dev_num, 2, &start, &count, &pid);
 	if (pid != 0x83)

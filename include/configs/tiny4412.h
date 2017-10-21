@@ -334,6 +334,12 @@
 #define CFG_FASTBOOT_SDMMC_BLOCKSIZE            (512)   // Block size of sdmmc
 #define CFG_PARTITION_START			(0x4000000)
 
+/* Strorage Partition table*/
+#define CFG_BOOTLOADER_SIZE  (444 * 2 * CFG_FASTBOOT_SDMMC_BLOCKSIZE)  /* 444k */
+#define CFG_KERNEL_SIZE  (1024 * 2 * CFG_FASTBOOT_SDMMC_BLOCKSIZE)
+#define CFG_ROOTFS_SIZE  (1024 * 2 * CFG_FASTBOOT_SDMMC_BLOCKSIZE)
+
+
 /* Just one BSP type should be defined. */
 /* Note:In Tiny4412,we choose CONFIG_CMD_MOVINAND */
 #if defined(CONFIG_CMD_ONENAND) | defined(CONFIG_CMD_NAND) | defined(CONFIG_CMD_MOVINAND)
